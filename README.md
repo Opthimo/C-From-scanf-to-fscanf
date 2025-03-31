@@ -1,51 +1,97 @@
 <!---
 {
-  "depends_on": [],
+  "depends_on": ["https://github.com/STEMgraph/1394df5e-2528-4670-9398-208071d70c1b"],
   "author": "Stephan Bökelmann",
-  "first_used": "2025-03-17",
-  "keywords": ["learning", "exercises", "education", "practice"]
+  "first_used": "2025-04-01",
+  "keywords": ["fscanf", "streams", "C", "input"]
 }
 --->
 
-# Learning Through Exercises
+# From `scanf` to `fscanf`: Reading Input from Files
 
 ## 1) Introduction
-Learning by doing is one of the most effective methods to acquire new knowledge and skills. Rather than passively consuming information, actively engaging in problem-solving fosters deeper understanding and long-term retention. By working through structured exercises, students can grasp complex concepts in a more intuitive and applicable way. This approach is particularly beneficial in technical fields like programming, mathematics, and engineering.
 
-### 1.1) Further Readings and Other Sources
-- [The Importance of Practice in Learning](https://www.sciencedirect.com/science/article/pii/S036013151300062X)
-- "The Art of Learning" by Josh Waitzkin
-- [How to Learn Effectively: 5 Key Strategies](https://www.edutopia.org/article/5-research-backed-learning-strategies)
+In the [previous exercise](https://github.com/STEMgraph/1394df5e-2528-4670-9398-208071d70c1b), we explored `scanf`, which allows us to read formatted input from the terminal (i.e., from `stdin`). In this follow-up, we generalize this idea: just like `printf` has `fprintf`, there’s `fscanf` for reading from **arbitrary input streams**, such as files.
+
+Let’s first understand the low-level idea by looking at how we might read from a file using Assembly.
+
+```asm
+01  section .data
+02      filename db '/home/user/input.txt', 0
+03
+04  section .bss
+05      buffer resb 64
+06
+07  section .text
+08      global _start
+09
+10  _start:
+11      mov     rax, 2              ; syscall: open
+12      lea     rdi, [rel filename] ; pointer to filename
+13      mov     rsi, 0              ; flags = O_RDONLY
+14      syscall
+15      mov     r12, rax            ; save file descriptor
+16
+17      mov     rax, 0              ; syscall: read
+18      mov     rdi, r12            ; fd from open
+19      lea     rsi, [rel buffer]
+20      mov     rdx, 64             ; number of bytes
+21      syscall
+22
+23      mov     rax, 3              ; syscall: close
+24      mov     rdi, r12
+25      syscall
+26
+27      mov     rax, 60             ; exit
+28      xor     rdi, rdi
+29      syscall
+```
+
+This reads up to 64 bytes from a file and places them into a buffer.
+
+Now let’s perform the same operation in C using `fscanf`. We’ll open a file and read formatted text from it:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    FILE *file = fopen("./input.txt", "r");
+    if (!file) {
+        perror("Could not open file");
+        return 1;
+    }
+
+    char name[32];
+    int age;
+
+    fscanf(file, "%31s %d", name, &age);
+    printf("Name: %s, Age: %d\n", name, age);
+
+    fclose(file);
+    return 0;
+}
+```
+This assumes a file like `./assets/input.txt`.
+`fscanf` works exactly like `scanf`, except it takes an additional `FILE*` stream as its first argument. It allows us to read structured input from any file, not just from the terminal.
 
 ## 2) Tasks
-1. **Write a Summary**: Summarize the concept of "learning by doing" in 3-5 sentences.
-2. **Example Identification**: List three examples from your own experience where learning through exercises helped you understand a topic better.
-3. **Create an Exercise**: Design a simple exercise for a topic of your choice that someone else could use to practice.
-4. **Follow an Exercise**: Find an online tutorial that includes exercises and complete at least two of them.
-5. **Modify an Existing Exercise**: Take a basic problem from a textbook or online course and modify it to make it slightly more challenging.
-6. **Pair Learning**: Explain a concept to a partner and guide them through an exercise without giving direct answers.
-7. **Review Mistakes**: Look at an exercise you've previously completed incorrectly. Identify why the mistake happened and how to prevent it in the future.
-8. **Time Challenge**: Set a timer for 10 minutes and try to solve as many simple exercises as possible on a given topic.
-9. **Self-Assessment**: Create a checklist to evaluate your own performance in completing exercises effectively.
-10. **Reflect on Progress**: Write a short paragraph on how this structured approach to exercises has influenced your learning.
 
-<details>
-  <summary>Tip for Task 5</summary>
-  Try making small adjustments first, such as increasing the difficulty slightly or adding an extra constraint.
-</details>
+1. **Try fscanf**: Create a file called `input.txt` with some example data (e.g., name and age). Write a program that reads and prints it using `fscanf`.
+2. **Compare with scanf**: Try reading the same data with `scanf` using input redirection: `./a.out < input.txt`. What’s the difference?
+3. **Use fgets + sscanf**: Read the documentation of `sscanf` on [the scanf page of cppreference.com](https://en.cppreference.com/w/c/io/fscanf). Instead of `fscanf`, use `fgets` to read a full line, then parse it using `sscanf`.
+
 
 ## 3) Questions
-1. What are the main benefits of learning through exercises compared to passive learning?
-2. How do exercises improve long-term retention?
-3. Can you think of a subject where learning through exercises might be less effective? Why?
-4. What role does feedback play in learning through exercises?
-5. How can self-designed exercises improve understanding?
-6. Why is it beneficial to review past mistakes in exercises?
-7. How does explaining a concept to someone else reinforce your own understanding?
-8. What strategies can you use to stay motivated when practicing with exercises?
-9. How can timed challenges contribute to learning efficiency?
-10. How do exercises help bridge the gap between theory and practical application?
+
+1. What is the difference between `scanf` and `fscanf`, and when would you use each?
+
+2. How does `fscanf` generalize the behavior of `scanf`?
+
+3. Why is it important to open files in the correct mode (`"r"`, `"w"`, etc.)?
+
+4. What happens if the format string in `fscanf` doesn’t match the file contents?
 
 ## 4) Advice
-Practice consistently and seek out diverse exercises that challenge different aspects of a topic. Combine exercises with reflection and feedback to maximize your learning efficiency. Don't hesitate to adapt exercises to fit your own needs and ensure that you're actively engaging with the material, rather than just going through the motions.
+
+Understanding how to read from different sources is crucial for systems programming. `fscanf` gives you the power to work with structured input from files in the same way `scanf` works with the terminal. Always validate file opening, watch for format mismatches, and consider `fgets` + `sscanf` when you need more control over parsing.
 
