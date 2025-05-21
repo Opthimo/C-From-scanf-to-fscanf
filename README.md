@@ -85,11 +85,19 @@ This assumes a file like `./assets/input.txt`.
 
 1. What is the difference between `scanf` and `fscanf`, and when would you use each?
 
+scanf reads from the standard input out from the OS (stdio), fscanf reads from a file
+
 2. How does `fscanf` generalize the behavior of `scanf`?
 
 3. Why is it important to open files in the correct mode (`"r"`, `"w"`, etc.)?
 
+Beim Öffnen wird schon festgelegt, was mit der Datei passieren darf.
+Kein Schreiben in einer Datei aus Versehen.
+
 4. What happens if the format string in `fscanf` doesn’t match the file contents?
+
+It will disply it wrong, or will cut the aoutput worng
+
 
 ## 4) Advice
 
