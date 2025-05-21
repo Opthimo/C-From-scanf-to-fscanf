@@ -85,9 +85,13 @@ This assumes a file like `./assets/input.txt`.
 
 1. What is the difference between `scanf` and `fscanf`, and when would you use each?
 
+scanf reads from the stio stream, fscanf from a file stream
+
 2. How does `fscanf` generalize the behavior of `scanf`?
 
 3. Why is it important to open files in the correct mode (`"r"`, `"w"`, etc.)?
+
+
 
 4. What happens if the format string in `fscanf` doesn’t match the file contents?
 
